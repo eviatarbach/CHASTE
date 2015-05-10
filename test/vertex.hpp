@@ -80,7 +80,6 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "StochasticDurationCellCycleModel.hpp"
 /* The next two header files define a helper class for generating suitable meshes: one planar and one periodic. */
 #include "HoneycombVertexMeshGenerator.hpp"
-#include "CylindricalHoneycombVertexMeshGenerator.hpp"
 /* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
 #include "VertexBasedCellPopulation.hpp"
 /* The next header file defines a force law for describing the mechanical interactions
@@ -97,8 +96,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
 #include "PlaneBasedCellKiller.hpp"
 
-/* Finally, we include a header that enforces running this test only on one process. */
-#include "FakePetscSetup.hpp"
+#include "CellVolumesWriter.hpp"
+#include "CellAncestorWriter.hpp"
 
 /* Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
@@ -144,6 +143,9 @@ public:
         * cell population called a {{{VertexBasedCellPopulation}}}.
         */
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+	cell_population.AddCellWriter<CellAncestorWriter>();
+	cell_population.AddCellWriter<CellVolumesWriter>();
 
         /* We then pass the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
@@ -197,112 +199,7 @@ public:
     * java executable.
     *
     * EMPTYLINE
-    *
-    * == Test 2 - introducing periodicity, boundaries and cell killers ==
-    *
-    * EMPTYLINE
-    *
-    * In the second test, we run a simple vertex-based simulation, in which we create a monolayer
-    * of cells in a periodic geometry, using a cylindrical vertex mesh. We also include a fixed
-    * boundary which cells can't pass through and a cell killer which removes cells once they leave
-    * a region. As before each cell is assigned a stochastic cell-cycle model.
     */
-    void TestPeriodicMonolayer() throw(Exception)
-    {
-        /* First, we generate a periodic vertex mesh. To create a {{{Cylindrical2dVertexMesh}}}, we can use
-         * the {{{CylindricalHoneycombVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
-         * in which all nodes are equidistant and the right hand side is associated with the left hand side.
-         * Here the first and second arguments define the size of the mesh - we have chosen a mesh that
-         * is 4 elements (i.e. cells) wide, and 4 elements high.
-         */
-        CylindricalHoneycombVertexMeshGenerator generator(4, 4);    // Parameters are: cells across, cells up
-        Cylindrical2dVertexMesh* p_mesh = generator.GetCylindricalMesh();
-
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-        * This is exactly the same as the above test. */
-        std::vector<CellPtr> cells;
-        MAKE_PTR(TransitCellProliferativeType, p_transit_type);
-        CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-        cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), p_transit_type);
-
-        /* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
-         * This is also the same as in the above test.
-         */
-        VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-
-        /* As always we then pass the cell population into an {{{OffLatticeSimulation}}},
-         * and set the output directory, output multiple and end time. */
-        OffLatticeSimulation<2> simulator(cell_population);
-        simulator.SetOutputDirectory("VertexBasedPeriodicMonolayer");
-        simulator.SetSamplingTimestepMultiple(50);
-        simulator.SetEndTime(1.0);
-
-        /* We now make a pointer to an appropriate force and pass it to the
-         * {{{OffLatticeSimulation}}}.
-         */
-        MAKE_PTR(NagaiHondaForce<2>, p_force);
-        simulator.AddForce(p_force);
-
-        /* We also make a pointer to the target area modifier and add it to the simulator.
-         */
-        MAKE_PTR(SimpleTargetAreaModifier<2>, p_growth_modifier);
-        simulator.AddSimulationModifier(p_growth_modifier);
-
-        /* We now create one or more {{{CellPopulationBoundaryCondition}}}s, which determine
-         * any conditions which each cell in a cell population must satisfy. For this test,
-         * we use a {{{PlaneBoundaryCondition}}}, and pass it to the {{{OffLatticeSimulation}}}.
-         * For a list of possible boundary condition see subclasses of {{{AbstractCellPopulationBoundaryCondition}}}.
-         * These can be found in the inheritance diagram, here,
-         * [class:AbstractCellPopulationBoundaryCondition AbstractCellPopulationBoundaryCondition].
-         * Note that some of these boundary conditions are not compatible with vertex-based
-         * simulations see the specific class documentation for details, if you try to use an
-         * incompatible class then you will receive a warning.
-         *
-         * The first step is to define a point on the plane boundary and a normal to the plane.
-         */
-        c_vector<double,2> point = zero_vector<double>(2);
-        c_vector<double,2> normal = zero_vector<double>(2);
-        normal(1) = -1.0;
-        /* We can now make a pointer to a {{{PlaneBoundaryCondition}}} (passing the point
-         * and normal to the plane) and pass it to the {{{OffLatticeSimulation}}}.*/
-        MAKE_PTR_ARGS(PlaneBoundaryCondition<2>, p_bc, (&cell_population, point, normal));
-        simulator.AddCellPopulationBoundaryCondition(p_bc);
-
-        /* We now create one or more {{{CellKiller}}}s, which determine how cells are removed
-         * from the simulation. For this test, we use a {{{PlaneBasedCellKiller}}}, and pass
-         * it to the {{{OffLatticeSimulation}}}. For a list of possible cell killers see subclasses
-         * of {{{AbstractCellKiller}}}. These can be found in the inheritance diagram, here,
-         * [class:AbstractCellKiller AbstractCellKiller].
-         *
-         * The first step is to define a point on the plane boundary and a normal to the plane.
-         * We reuse the point and normal from the {{{PlaneBoundaryCondition}}}.
-         */
-        point(1) = 3.0;
-        normal(1) = 1.0;
-        /* Finally we now make a pointer to a {{{PlaneBasedCellKiller}}} (passing the point
-         * and normal to the plane) and pass it to the {{{OffLatticeSimulation}}}.*/
-        MAKE_PTR_ARGS(PlaneBasedCellKiller<2>, p_killer, (&cell_population, point, normal));
-        simulator.AddCellKiller(p_killer);
-
-        /* To run the simulation, we call {{{Solve()}}}. */
-        simulator.Solve();
-
-        /* The next two lines are for test purposes only and are not part of this tutorial.
-         */
-        TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 12u);
-        TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 1.0, 1e-10);
-    }
-    /*
-     * EMPTYLINE
-     *
-     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
-     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexBasedPeriodicMonolayer/results_from_time_0}}}.
-     *
-     * You should see that the edges of the mesh are identical on both sides; cells no
-     * longer pass through the line y=0; and cells are removed at y=3.
-     *
-     * EMPTYLINE
-     */
 };
 
 #endif /* TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_ */
