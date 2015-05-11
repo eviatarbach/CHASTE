@@ -147,11 +147,13 @@ public:
 	cell_population.AddCellWriter<CellAncestorWriter>();
 	cell_population.AddCellWriter<CellVolumesWriter>();
 
+	cell_population.SetCellAncestorsToLocationIndices();
+
         /* We then pass the cell population into an {{{OffLatticeSimulation}}},
          * and set the output directory and end time. */
         OffLatticeSimulation<2> simulator(cell_population);
         simulator.SetOutputDirectory("VertexBasedMonolayer");
-        simulator.SetEndTime(1.0);
+        simulator.SetEndTime(20.0);
 
         /*
          * For longer simulations, we may not want to output the results
