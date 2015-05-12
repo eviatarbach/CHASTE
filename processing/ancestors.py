@@ -1,5 +1,3 @@
-import bisect
-
 class Node:
     def __init__(self, num, time):
         self.num = num
@@ -12,25 +10,25 @@ class Node:
         return self.num == other.num
 
 class Tree:
-    """Simple B-Tree implementation for cell family tree"""
-    def __init__(self, node, children):
+    """Simple binary tree (not BST) implementation for cell family tree"""
+    def __init__(self, node, left, right):
+        assert left == None and right == None
         self.node = node
-        self.children = children
+        self.left = left
+        self.right = right
+        self.current_gen = [self]
     def __repr__(self):
-        return self.node.__repr__() + ': {children}'.format(children=self.children)
-    def __lt__(self, other):
-        return self.node < other.node
-    def __eq__(self, other):
-        return self.node == other.node
+        return self.node.__repr__() + ': ({left}, {right})'.format(left=self.left,
+                                                                   right=self.right)
     def add_node(self, parent_num, child_node):
-        if self.node.num == parent_num:
-            bisect.insort_left(self.children, Tree(child_node, []))
-        else:
-            if self.children == []:
+        for index, subtree in enumerate(self.current_gen):
+            if parent_num == int(str(subtree.node.num).strip()):
+                self.current_gen.pop(index)
+                subtree.left = Tree(child_node, None, None)
+                subtree.right = Tree(Node(str(subtree.node.num) + ' ', subtree.node.time), None, None)
+                self.current_gen.append(subtree.left)
+                self.current_gen.append(subtree.right)
                 return
-            i = bisect.bisect_left(self.children, Tree(Node(parent_num, None), []))
-            i = i if i < len(self.children) else len(self.children) - 1
-            return self.children[i].add_node(parent_num, child_node)
 
 def parse_line(line):
     time, cells = line.split('\t')
@@ -38,14 +36,13 @@ def parse_line(line):
     return (float(time), cells)
 
 def build_tree(text):
-    tree = Tree(Node(-1, -1), [])
     text = filter(None, text.split('\n'))
     seen = set()
     for index, line in enumerate(text):
         time, cells = parse_line(line)
         for cell_index, cell in enumerate(cells):
             if index == 0:
-                tree.add_node(-1, Node(cell, 0.0))
+                tree = Tree(Node(cell, 0.0), None, None)
                 seen.add(cell)
             elif cell not in seen:
                 prev_line = parse_line(text[index - 1])
@@ -57,18 +54,21 @@ def plot_tree(tree):
     import networkx
     import matplotlib.pyplot as plt
 
-    G = networkx.Graph()
-
-    G.add_node(-1)
+    G = networkx.DiGraph()
 
     def gen_graph(t):
-        for child in t.children:
+        for child in filter(None, [t.left, t.right]):
             G.add_node(child.node.num)
             G.add_edge(t.node.num, child.node.num)
             gen_graph(child)
 
     gen_graph(tree)
 
-    networkx.draw_networkx(G)
+    networkx.write_dot(G,'test.dot')
+
+    plt.title("draw_networkx")
+    pos = networkx.graphviz_layout(G,prog='dot')
+    networkx.draw(G, pos, with_labels=True, arrows=False)
+    #plt.savefig('nx_test.png')
 
     plt.show()
