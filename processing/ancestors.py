@@ -52,3 +52,23 @@ def build_tree(text):
                 tree.add_node(prev_line[1][cell_index], Node(cell, prev_line[0]))
                 seen.add(cell)
     return tree
+
+def plot_tree(tree):
+    import networkx
+    import matplotlib.pyplot as plt
+
+    G = networkx.Graph()
+
+    G.add_node(-1)
+
+    def gen_graph(t):
+        for child in t.children:
+            G.add_node(child.node.num)
+            G.add_edge(t.node.num, child.node.num)
+            gen_graph(child)
+
+    gen_graph(tree)
+
+    networkx.draw_networkx(G)
+
+    plt.show()
