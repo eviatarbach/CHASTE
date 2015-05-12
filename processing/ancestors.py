@@ -1,3 +1,5 @@
+import copy
+
 class Node:
     def __init__(self, num, time):
         self.num = num
@@ -11,12 +13,12 @@ class Node:
 
 class Tree:
     """Simple binary tree (not BST) implementation for cell family tree"""
-    def __init__(self, node, left, right):
-        assert left == None and right == None
+    def __init__(self, node, left, right, init_pop=None):
         self.node = node
         self.left = left
         self.right = right
-        self.current_gen = [self]
+        self.init_pop = init_pop
+        self.current_gen = copy.copy(init_pop)
     def __repr__(self):
         return self.node.__repr__() + ': ({left}, {right})'.format(left=self.left,
                                                                    right=self.right)
@@ -40,11 +42,13 @@ def build_tree(text):
     seen = set()
     for index, line in enumerate(text):
         time, cells = parse_line(line)
+        if index == 0:
+            init_pop = [Tree(Node(cell, 0.0), None, None) for cell in cells]
+            tree = Tree(None, None, None, init_pop)
+            seen.update(cells)
+            continue
         for cell_index, cell in enumerate(cells):
-            if index == 0:
-                tree = Tree(Node(cell, 0.0), None, None)
-                seen.add(cell)
-            elif cell not in seen:
+            if cell not in seen:
                 prev_line = parse_line(text[index - 1])
                 tree.add_node(prev_line[1][cell_index], Node(cell, prev_line[0]))
                 seen.add(cell)
@@ -62,7 +66,7 @@ def plot_tree(tree):
             G.add_edge(t.node.num, child.node.num)
             gen_graph(child)
 
-    gen_graph(tree)
+    for cell in tree.init_pop: gen_graph(cell)
 
     networkx.write_dot(G,'test.dot')
 
