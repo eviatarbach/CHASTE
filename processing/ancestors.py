@@ -54,7 +54,7 @@ def build_tree(text):
                 seen.add(cell)
     return tree
 
-def plot_tree(tree):
+def plot_tree(tree, title=""):
     import networkx
     import matplotlib.pyplot as plt
 
@@ -70,9 +70,9 @@ def plot_tree(tree):
 
     networkx.write_dot(G,'test.dot')
 
-    plt.title("draw_networkx")
+    plt.title(title)
     pos = networkx.graphviz_layout(G,prog='dot')
-    networkx.draw(G, pos, with_labels=True, arrows=False)
-    #plt.savefig('nx_test.png')
+    networkx.draw(G, pos, with_labels=False, arrows=False)
+    plt.savefig('nx_test.png')
 
     plt.show()
