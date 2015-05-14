@@ -58,6 +58,8 @@
 
 #include "AncestorTrackingModifier.hpp"
 
+#include "PetscSetupAndFinalize.hpp"
+
 /* Next, we define the test class, which inherits from {{{AbstractCellBasedTestSuite}}}
  * and defines some test methods.
  */
