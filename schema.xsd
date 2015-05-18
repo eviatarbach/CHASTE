@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.w3schools.com"
+    xmlns="http://www.w3schools.com"
+    elementFormDefault="qualified">
+
+    <xsd:simpleType name="intlist">
+        <xsd:list itemType="xsd:integer"/>
+    </xsd:simpleType>
+
+    <xsd:element name="simulation">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="time" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="cell" maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:attribute name="cell_id" use="required">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:integer">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="cell_type_id" type="xsd:integer"/>
+                                    <xsd:attribute name="state" type="xsd:string"/>
+                                    <xsd:attribute name="x" type="xsd:decimal"/>
+                                    <xsd:attribute name="y" type="xsd:decimal"/>
+                                    <xsd:attribute name="area">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:decimal">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="perimeter">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:decimal">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="ancestor">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:integer">
+                                                <xsd:minInclusive value="-1"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="generation">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:integer">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name="contact_perimeter">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:decimal">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                    <xsd:attribute name='neighbours' type="intlist"/>
+                                    <xsd:attribute name="birth_time">
+                                        <xsd:simpleType>
+                                            <xsd:restriction base="xsd:decimal">
+                                                <xsd:minInclusive value="0"/>
+                                            </xsd:restriction>
+                                        </xsd:simpleType>
+                                    </xsd:attribute>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="t" use="required">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:decimal">
+                                    <xsd:minInclusive value="0"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="simulation_type" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

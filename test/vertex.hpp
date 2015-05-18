@@ -114,7 +114,7 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
              * and set the output directory and end time. */
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayer");
-            simulator.SetEndTime(200.0);
+            simulator.SetEndTime(100.0);
 
             /*
              * For longer simulations, we may not want to output the results
