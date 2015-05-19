@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <simulation xmlns="http://www.w3schools.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" simulation_type="epithelial">
     <time t="0.0">
-        <cell cell_id="0" cell_type_id="1" state="transit" x="0.1" y="0.2" area="4.0" perimeter="5.9" ancestor="-1" generation="0" contact_perimeter="3.2" neighbours="1" birth_time="0.0"/>
-        <cell cell_id="1" cell_type_id="1" state="transit" x="1.0" y="5.2" area="9.0" perimeter="9.9" ancestor="-1" generation="0" contact_perimeter="5.2" neighbours="0" birth_time="0.0"/>
+        <cell cell_id="0" cell_type_id="1" state="transit" x="0.1" y="0.2" area="4.0" perimeter="5.9" ancestor="-1" generation="0" contact_perimeter="3.2" neighbours="1" birth_time="0.0" pressure="0.01"/>
+        <cell cell_id="1" cell_type_id="1" state="transit" x="1.0" y="5.2" area="9.0" perimeter="9.9" ancestor="-1" generation="0" contact_perimeter="5.2" neighbours="0" birth_time="0.0" pressure="0.02"/>
     </time>
     <time t="0.1">
-        <cell cell_id="0" cell_type_id="1" state="transit" x="0.1" y="0.2" area="4.0" perimeter="5.9" ancestor="-1" generation="0" contact_perimeter="3.2" neighbours="12" birth_time="0.0"/>
-        <cell cell_id="1" cell_type_id="1" state="transit" x="0.9" y="5.1" area="4.5" perimeter="6.0" ancestor="1" generation="1" contact_perimeter="3.2" neighbours="0 2" birth_time="0.1"/>
-        <cell cell_id="2" cell_type_id="1" state="transit" x="1.1" y="5.3" area="4.5" perimeter="6.0" ancestor="1" generation="1" contact_perimeter="3.2" neighbours="0 1" birth_time="0.1"/>
+        <cell cell_id="0" cell_type_id="1" state="transit" x="0.1" y="0.2" area="4.0" perimeter="5.9" ancestor="-1" generation="0" contact_perimeter="3.2" neighbours="12" birth_time="0.0" pressure="0.01"/>
+        <cell cell_id="1" cell_type_id="1" state="transit" x="0.9" y="5.1" area="4.5" perimeter="6.0" ancestor="1" generation="1" contact_perimeter="3.2" neighbours="0 2" birth_time="0.1" pressure="0.1"/>
+        <cell cell_id="2" cell_type_id="1" state="transit" x="1.1" y="5.3" area="4.5" perimeter="6.0" ancestor="1" generation="1" contact_perimeter="3.2" neighbours="0 1" birth_time="0.1" pressure="0.1"/>
     </time>
 </simulation>
