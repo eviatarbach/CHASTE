@@ -53,10 +53,7 @@
 /* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
 #include "PlaneBasedCellKiller.hpp"
 
-#include "CellVolumesWriter.hpp"
-#include "CellAncestorWriter.hpp"
-
-#include "AncestorTrackingModifier.hpp"
+#include "XMLCellWriter.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -105,16 +102,13 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
              */
             VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-            cell_population.AddCellWriter<CellAncestorWriter>();
-            cell_population.AddCellWriter<CellVolumesWriter>();
-
-            cell_population.SetCellAncestorsToLocationIndices();
+            cell_population.AddCellWriter<XMLCellWriter>();
 
             /* We then pass the cell population into an {{{OffLatticeSimulation}}},
              * and set the output directory and end time. */
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayer");
-            simulator.SetEndTime(100.0);
+            simulator.SetEndTime(10.0);
 
             /*
              * For longer simulations, we may not want to output the results
@@ -143,9 +137,6 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
              */
             MAKE_PTR(SimpleTargetAreaModifier<2>, p_growth_modifier);
             simulator.AddSimulationModifier(p_growth_modifier);
-
-            MAKE_PTR(AncestorTrackingModifier<2>, p_ancestor_modifier);
-            simulator.AddSimulationModifier(p_ancestor_modifier);
 
             /* To run the simulation, we call {{{Solve()}}}. */
             simulator.Solve();
