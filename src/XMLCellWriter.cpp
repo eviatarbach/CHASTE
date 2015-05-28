@@ -18,13 +18,15 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::WriteNewline()
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::WriteTimeStamp()
 {
-    *this->mpOutStream << "<time t=\"" << SimulationTime::Instance()->GetTime() << "\"> ";
+    *this->mpOutStream << "<time t=\"" << SimulationTime::Instance()->GetTime() << "\">\n";
 }
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation)
 {
     *this->mpOutStream << "<cell ";
+
+    //unsigned location_index = pCellPopulation->GetLocationIndexUsingCell(pCell);
 
     unsigned cell_id = pCell->GetCellId();
     c_vector<double, SPACE_DIM> centre_location = pCellPopulation->GetLocationOfCellCentre(pCell);
@@ -43,8 +45,8 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     // Write birth time
     *this->mpOutStream << "birth_time=\"" << SimulationTime::Instance()->GetTime() - pCell->GetAge() << "\" ";
 
-    pCellPopulation->SetCellAncestorsToLocationIndices();
-    double ancestor_index = (pCell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)pCell->GetAncestor();
+    unsigned ancestor_index = pCell->GetCellData()->GetItem("direct_ancestor");
+
     *this->mpOutStream << "ancestor=\"" << ancestor_index << "\" ";
 
     *this->mpOutStream << "/>\n";
@@ -65,3 +67,7 @@ template class XMLCellWriter<2,2>;
 template class XMLCellWriter<1,3>;
 template class XMLCellWriter<2,3>;
 template class XMLCellWriter<3,3>;
+
+#include "SerializationExportWrapperForCpp.hpp"
+// Declare identifier for the serializer
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(XMLCellWriter)

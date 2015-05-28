@@ -48,6 +48,7 @@
  * the next header file.
  */
 #include "SimpleTargetAreaModifier.hpp"
+#include "AncestorTrackingModifier.hpp"
 /* The next header file defines a boundary condition for the cells.*/
 #include "PlaneBoundaryCondition.hpp"
 /* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
@@ -80,7 +81,7 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
              * define the size of the mesh - we have chosen a mesh that is 2 elements (i.e.
              * cells) wide, and 2 elements high.
              */
-            HoneycombVertexMeshGenerator generator(2, 2);    // Parameters are: cells across, cells up
+            HoneycombVertexMeshGenerator generator(1, 1);    // Parameters are: cells across, cells up
             MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
             /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
@@ -108,8 +109,7 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
              * and set the output directory and end time. */
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayer");
-            simulator.SetEndTime(10.0);
-
+            simulator.SetEndTime(50.0);
             /*
              * For longer simulations, we may not want to output the results
              * every time step. In this case we can use the following method,
@@ -138,6 +138,8 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
             MAKE_PTR(SimpleTargetAreaModifier<2>, p_growth_modifier);
             simulator.AddSimulationModifier(p_growth_modifier);
 
+            MAKE_PTR(AncestorTrackingModifier<2>, p_ancestor_modifier);
+            simulator.AddSimulationModifier(p_ancestor_modifier);
             /* To run the simulation, we call {{{Solve()}}}. */
             simulator.Solve();
 
