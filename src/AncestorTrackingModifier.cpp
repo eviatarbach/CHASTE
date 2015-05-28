@@ -1,6 +1,5 @@
 #include "AncestorTrackingModifier.hpp"
 #include "Exception.hpp"
-#include "SimulationTime.hpp"
 
     template<unsigned DIM>
     AncestorTrackingModifier<DIM>::AncestorTrackingModifier()
