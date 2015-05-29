@@ -53,6 +53,10 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     *this->mpOutStream << "perimeter=\"" << boundary << "\" ";
 
+    double contact_boundary = pCell->GetCellData()->GetItem("contact_boundary");
+
+    *this->mpOutStream << "contact_perimeter=\"" << contact_boundary << "\" ";
+
     *this->mpOutStream << "/>\n";
 }
 

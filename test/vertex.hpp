@@ -50,6 +50,8 @@
 #include "SimpleTargetAreaModifier.hpp"
 #include "AncestorTrackingModifier.hpp"
 #include "BoundaryTrackingModifier.hpp"
+#include "ContactBoundaryTrackingModifier.hpp"
+
 /* The next header file defines a boundary condition for the cells.*/
 #include "PlaneBoundaryCondition.hpp"
 /* The next header file defines a cell killer, which specifies how cells are removed from the simulation.*/
@@ -144,6 +146,9 @@ class TestRunningVertexBasedSimulationsTutorial : public AbstractCellBasedTestSu
 
             MAKE_PTR(BoundaryTrackingModifier<2>, p_boundary_modifier);
             simulator.AddSimulationModifier(p_boundary_modifier);
+
+            MAKE_PTR(ContactBoundaryTrackingModifier<2>, p_contact_boundary_modifier);
+            simulator.AddSimulationModifier(p_contact_boundary_modifier);
 
             /* To run the simulation, we call {{{Solve()}}}. */
             simulator.Solve();
