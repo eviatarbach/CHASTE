@@ -43,7 +43,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     }
 
     // Write birth time
-    *this->mpOutStream << "birth_time=\"" << SimulationTime::Instance()->GetTime() - pCell->GetAge() << "\" ";
+    *this->mpOutStream << "birth_time=\"" << pCell->GetCellCycleModel()->GetBirthTime() << "\" ";
 
     unsigned ancestor_index = pCell->GetCellData()->GetItem("direct_ancestor");
 
@@ -56,6 +56,19 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     double contact_boundary = pCell->GetCellData()->GetItem("contact_boundary");
 
     *this->mpOutStream << "contact_perimeter=\"" << contact_boundary << "\" ";
+
+    *this->mpOutStream << "neighbours=\"";
+
+    std::set<unsigned> neighbours = pCellPopulation->GetNeighbouringLocationIndices(pCell);
+
+    for (std::set<unsigned>::iterator neighbour_iter = neighbours.begin();
+            neighbour_iter != neighbours.end();
+            ++neighbour_iter)
+    {
+        *this->mpOutStream << " " << *neighbour_iter;
+    }
+
+    *this->mpOutStream << "\" ";
 
     *this->mpOutStream << "/>\n";
 }
