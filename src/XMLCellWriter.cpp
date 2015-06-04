@@ -84,6 +84,16 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     *this->mpOutStream << "state=\"" << state << "\" ";
 
+    unsigned label = 0;
+    if (pCell->HasCellProperty<CellLabel>())
+    {
+        CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<CellLabel>();
+        boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
+        label = p_label->GetColour();
+    }
+
+    *this->mpOutStream << "label=\"" << label << "\" ";
+
     *this->mpOutStream << "/>\n";
 }
 
