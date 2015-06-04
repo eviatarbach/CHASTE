@@ -69,7 +69,7 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
 
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayerSimple");
-            simulator.SetEndTime(20.0);
+            simulator.SetEndTime(10.0);
 
             simulator.SetSamplingTimestepMultiple(50);
 
@@ -119,7 +119,7 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayerWithContactInhibition");
             simulator.SetSamplingTimestepMultiple(50);
-            simulator.SetEndTime(50.0);
+            simulator.SetEndTime(10.0);
 
             MAKE_PTR(VolumeTrackingModifier<2>, p_modifier);
             simulator.AddSimulationModifier(p_modifier);

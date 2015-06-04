@@ -1,3 +1,4 @@
+#include <boost/regex.hpp>
 #include "XMLCellWriter.hpp"
 #include "AbstractCellWriter.hpp"
 #include "AbstractCellPopulation.hpp"
@@ -69,6 +70,18 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     }
 
     *this->mpOutStream << "\" ";
+
+    std::string state = pCell->GetCellProliferativeType()->GetIdentifier();
+
+//    boost::regex state_regex("([\\w]+)CellProliferativeType");
+//    boost::smatch match;
+
+//    if (boost::regex_search(state, match, state_regex))
+//    {
+//        state = match[1];
+//    }
+
+    *this->mpOutStream << "state=\"" << state << "\" ";
 
     *this->mpOutStream << "/>\n";
 }
