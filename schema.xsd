@@ -8,6 +8,10 @@
         <xsd:list itemType="xsd:integer"/>
     </xsd:simpleType>
 
+    <xsd:simpleType name="declist">
+        <xsd:list itemType="xsd:decimal"/>
+    </xsd:simpleType>
+
     <xsd:element name="simulation">
         <xsd:complexType>
             <xsd:sequence>
@@ -23,7 +27,7 @@
                                             </xsd:restriction>
                                         </xsd:simpleType>
                                     </xsd:attribute>
-                                    <xsd:attribute name="cell_type_id" type="xsd:integer"/>
+                                    <xsd:attribute name="type" type="xsd:string"/>
                                     <xsd:attribute name="state" type="xsd:string"/>
                                     <xsd:attribute name="x" type="xsd:decimal"/>
                                     <xsd:attribute name="y" type="xsd:decimal"/>
@@ -62,15 +66,12 @@
                                             </xsd:restriction>
                                         </xsd:simpleType>
                                     </xsd:attribute>
-                                    <xsd:attribute name='neighbours' type="intlist"/>
-                                    <xsd:attribute name="birth_time">
-                                        <xsd:simpleType>
-                                            <xsd:restriction base="xsd:decimal">
-                                                <xsd:minInclusive value="0"/>
-                                            </xsd:restriction>
-                                        </xsd:simpleType>
-                                    </xsd:attribute>
-                                    <xsd:attribute name='pressure' type="xsd:decimal"/>
+                                    <xsd:attribute name="neighbours" type="intlist"/>
+                                    <xsd:attribute name="polarity" type="declist"/>
+                                    <xsd:attribute name="ext_force" type="declist"/>
+                                    <xsd:attribute name="birth_time" type="xsd:decimal"/>
+                                    <xsd:attribute name="pressure" type="xsd:decimal"/>
+                                    <xsd:attribute name="extra_fields" type="xsd:string"/>
                                 </xsd:complexType>
                             </xsd:element>
                         </xsd:sequence>
@@ -85,6 +86,18 @@
                 </xsd:element>
             </xsd:sequence>
             <xsd:attribute name="simulation_type" type="xsd:string"/>
+            <xsd:attribute name="state_list" type="xsd:string"/>
+            <xsd:attribute name="type_list" type="xsd:string"/>
+            <xsd:attribute name="axis_division" type="xsd:string"/>
+            <xsd:attribute name="cell_cycle_model" type="xsd:string"/>
+            <xsd:attribute name="time_step">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:decimal">
+                        <xsd:minInclusive value="0"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="extra_sim_info" type="xsd:string"/>
         </xsd:complexType>
     </xsd:element>
 
