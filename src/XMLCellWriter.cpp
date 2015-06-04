@@ -73,13 +73,14 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     std::string state = pCell->GetCellProliferativeType()->GetIdentifier();
 
-//    boost::regex state_regex("([\\w]+)CellProliferativeType");
-//    boost::smatch match;
+    boost::regex state_regex("([\\w]+)CellProliferativeType");
+    boost::smatch match;
 
-//    if (boost::regex_search(state, match, state_regex))
-//    {
-//        state = match[1];
-//    }
+    if (boost::regex_search(state, match, state_regex))
+    {
+        state = match[1];
+        state[0] = ::tolower(state[0]);
+    }
 
     *this->mpOutStream << "state=\"" << state << "\" ";
 
