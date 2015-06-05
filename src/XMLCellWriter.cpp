@@ -56,7 +56,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     double contact_boundary = pCell->GetCellData()->GetItem("contact_boundary");
 
-    *this->mpOutStream << "contact_perimeter=\"" << contact_boundary << "\" ";
+    *this->mpOutStream << "contact_perimeter=\"" << boundary - contact_boundary << "\" ";
 
     *this->mpOutStream << "neighbours=\"";
 

@@ -1,4 +1,3 @@
-
 #include "ContactBoundaryTrackingModifier.hpp"
 #include "AbstractCellPopulation.hpp"
 #include "MeshBasedCellPopulation.hpp"
@@ -44,7 +43,6 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
 
             // Get the location index corresponding to this cell
             unsigned index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-            double boundary = pCellPopulation->GetSurfaceAreaOfVoronoiElement(index);
 
             std::set<unsigned> neighbour_indices = pCellPopulation->GetNeighbouringNodeIndices(index);
             for (std::set<unsigned>::iterator neighbour_iter = neighbour_indices.begin();
@@ -61,7 +59,7 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
                 }
             }
 
-            cell_iter->GetCellData()->SetItem("contact_boundary", boundary - neighbour_contact);
+            cell_iter->GetCellData()->SetItem("contact_boundary", neighbour_contact);
         }
     } else if (dynamic_cast<PottsBasedCellPopulation<DIM>*> (&rCellPopulation)) {
         PottsBasedCellPopulation<DIM>* pCellPopulation = static_cast<PottsBasedCellPopulation<DIM>*> (&(rCellPopulation));
@@ -73,7 +71,6 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
 
             // Get the location index corresponding to this cell
             unsigned elem_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-            double boundary = pCellPopulation->rGetMesh().GetSurfaceAreaOfElement(elem_index);
 
             unsigned num_nodes_in_elem = pCellPopulation->rGetMesh().GetElement(elem_index)->GetNumNodes();
 
@@ -101,7 +98,7 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
                 }
             }
 
-            cell_iter->GetCellData()->SetItem("contact_boundary", boundary - neighbour_contact);
+            cell_iter->GetCellData()->SetItem("contact_boundary", neighbour_contact);
         }
     } else if (dynamic_cast<VertexBasedCellPopulation<DIM>*> (&rCellPopulation)) {
         VertexBasedCellPopulation<DIM>* pCellPopulation = static_cast<VertexBasedCellPopulation<DIM>*> (&(rCellPopulation));
@@ -113,7 +110,6 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
 
             // Get the location index corresponding to this cell
             unsigned elem_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
-            double boundary = pCellPopulation->rGetMesh().GetSurfaceAreaOfElement(elem_index);
 
             // Get the set of neighbouring element indices
             std::set<unsigned> neighbour_elem_indices = pCellPopulation->rGetMesh().GetNeighbouringElementIndices(elem_index);
@@ -128,7 +124,65 @@ void ContactBoundaryTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation
 
                 neighbour_contact += edge_length;
             }
-            cell_iter->GetCellData()->SetItem("contact_boundary", boundary - neighbour_contact);
+            cell_iter->GetCellData()->SetItem("contact_boundary", neighbour_contact);
+        }
+    }
+    else if (dynamic_cast<NodeBasedCellPopulation<DIM>*> (&rCellPopulation)) {
+        NodeBasedCellPopulation<DIM>* pCellPopulation = static_cast<NodeBasedCellPopulation<DIM>*> (&(rCellPopulation));
+
+        // Make sure the cell population is updated so that mNodeNeighbours is set up
+        ///\todo #2273 - check if this call to Update() is needed
+        pCellPopulation->Update();
+
+        double neighbour_contact = 0.0;
+
+        // Loop over cells
+        for (typename NodeBasedCellPopulation<DIM>::Iterator cell_iter = pCellPopulation->Begin();
+                cell_iter != pCellPopulation->End();
+                ++cell_iter)
+        {
+            // Store the radius of the node corresponding to this cell
+            unsigned node_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+            double node_radius = pCellPopulation->GetNode(node_index)->GetRadius();
+
+            // Get the set of neighbouring node indices
+            std::set<unsigned> neighbour_indices = pCellPopulation->GetNeighbouringNodeIndices(node_index);
+
+            if (!neighbour_indices.empty())
+            {
+                // Iterate over these neighbours
+                for (std::set<unsigned>::iterator neighbour_iter = neighbour_indices.begin();
+                        neighbour_iter != neighbour_indices.end();
+                        ++neighbour_iter)
+                {
+                    // Store the radius of the node corresponding to this neighbour
+                    double neighbour_radius = pCellPopulation->GetNode(*neighbour_iter)->GetRadius();
+
+                    // Get the (approximate) length of the edge shared with this neighbour
+                    double separation = pCellPopulation->rGetMesh().GetDistanceBetweenNodes(node_index, *neighbour_iter);
+                    double sum_of_radii = node_radius + neighbour_radius;
+
+                    // If the neighbours are close enough, then approximate their 'edge length'
+                    if (separation < sum_of_radii)
+                    {
+                        // Use Heron's formula to compute the edge length
+                        double a = node_radius;
+                        double b = neighbour_radius;
+                        double c = separation;
+                        double s = 0.5*(a + b + c);
+                        double A = sqrt(s*(s-a)*(s-b)*(s-c));
+                        double edge_length = 4.0*A/c;
+
+                        neighbour_contact += edge_length;
+
+                    }
+                }
+            }
+
+            // We have counted each cell-cell edge twice
+            neighbour_contact *= 0.5;
+
+            cell_iter->GetCellData()->SetItem("contact_boundary", neighbour_contact);
         }
     }
 }
