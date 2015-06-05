@@ -23,6 +23,7 @@
 #include "AncestorTrackingModifier.hpp"
 #include "BoundaryTrackingModifier.hpp"
 #include "ContactBoundaryTrackingModifier.hpp"
+#include "GenerationTrackingModifier.hpp"
 
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
@@ -85,6 +86,9 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             MAKE_PTR(BoundaryTrackingModifier<2>, p_boundary_modifier);
             simulator.AddSimulationModifier(p_boundary_modifier);
 
+            MAKE_PTR_ARGS(GenerationTrackingModifier<2>, p_generation_modifier, (50));
+            simulator.AddSimulationModifier(p_generation_modifier);
+
             MAKE_PTR(ContactBoundaryTrackingModifier<2>, p_contact_boundary_modifier);
             simulator.AddSimulationModifier(p_contact_boundary_modifier);
 
@@ -135,6 +139,9 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
 
             MAKE_PTR(BoundaryTrackingModifier<2>, p_boundary_modifier);
             simulator.AddSimulationModifier(p_boundary_modifier);
+
+            MAKE_PTR_ARGS(GenerationTrackingModifier<2>, p_generation_modifier, (50));
+            simulator.AddSimulationModifier(p_generation_modifier);
 
             MAKE_PTR(ContactBoundaryTrackingModifier<2>, p_contact_boundary_modifier);
             simulator.AddSimulationModifier(p_contact_boundary_modifier);

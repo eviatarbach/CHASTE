@@ -50,6 +50,10 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     *this->mpOutStream << "ancestor=\"" << ancestor_index << "\" ";
 
+    unsigned generation = pCell->GetCellData()->GetItem("generation");
+
+    *this->mpOutStream << "generation=\"" << generation << "\" ";
+
     double boundary = pCell->GetCellData()->GetItem("boundary");
 
     *this->mpOutStream << "perimeter=\"" << boundary << "\" ";
