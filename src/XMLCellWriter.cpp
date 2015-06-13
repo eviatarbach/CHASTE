@@ -11,6 +11,13 @@ XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::XMLCellWriter()
 };
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::OpenOutputFile(OutputFileHandler& rOutputFileHandler)
+{
+    AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>::OpenOutputFile(rOutputFileHandler);
+    *this->mpOutStream << "<simulation>\n";
+}
+
+    template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::WriteNewline()
 {
     *this->mpOutStream << "</time>\n";

@@ -13,6 +13,8 @@ GenerationTrackingModifier<DIM>::~GenerationTrackingModifier() {
 
 template<unsigned DIM>
 void GenerationTrackingModifier<DIM>::UpdateAtEndOfTimeStep(AbstractCellPopulation<DIM, DIM>& rCellPopulation) {
+    // Have to update at the step before the output time step, so it's ready
+    // in time for output
     if ((SimulationTime::Instance()->GetTimeStepsElapsed() + 1) % mSamplingTimestepMultiple == 0)
     {
         UpdateCellData(rCellPopulation);
@@ -42,7 +44,9 @@ void GenerationTrackingModifier<DIM>::UpdateCellData(AbstractCellPopulation<DIM,
         try
         {
             int generation = cell_iter->GetCellData()->GetItem("generation");
+            // Need this to account for floating-point error
             double eps = SimulationTime::Instance()->GetTime()*DBL_EPSILON;
+            // Has the cell been created since the last output time?
             if ((cell_iter->GetBirthTime() + eps) >= (SimulationTime::Instance()->GetTime() - mSamplingTimestepMultiple*SimulationTime::Instance()->GetTimeStep()))
             {
                 cell_iter->GetCellData()->SetItem("generation", generation + 1);

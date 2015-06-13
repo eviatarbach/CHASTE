@@ -32,6 +32,8 @@ class XMLCellWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
 
         void WriteNewline();
 
+        void OpenOutputFile(OutputFileHandler& rOutputFileHandler);
+
         double GetCellDataForVtkOutput(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
 
 };
