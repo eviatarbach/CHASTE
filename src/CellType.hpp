@@ -52,7 +52,7 @@ public:
      *
      * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
      */
-    CellType(unsigned type=0, unsigned colour=5);
+    CellType(unsigned type=1, unsigned colour=5);
 
     /**
      * Destructor.
