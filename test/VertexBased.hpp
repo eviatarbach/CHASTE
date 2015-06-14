@@ -28,7 +28,7 @@
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
 
-#include "CellLabel.hpp"
+#include "CellType.hpp"
 
 #include "PlaneBasedCellKiller.hpp"
 
@@ -46,6 +46,8 @@
 #include "MutableVertexMesh.hpp"
 #include "PlaneBoundaryCondition.hpp"
 #include "VolumeTrackingModifier.hpp"
+
+#include "NagaiHondaMultipleDifferentialAdhesionForce.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -117,7 +119,6 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             }
 
             VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-            cell_population.AddCellPopulationCountWriter<CellMutationStatesCountWriter>();
             cell_population.AddCellWriter<XMLCellWriter>();
 
             OffLatticeSimulation<2> simulator(cell_population);
@@ -148,7 +149,69 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
 
             simulator.Solve();
         }
+        void TestMonolayerWithMultipleDifferentialAdhesion()
+        {
+            HoneycombVertexMeshGenerator generator(4, 4);
+            MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+            p_mesh->SetCellRearrangementThreshold(0.1);
 
+            MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+            std::vector<CellPtr> cells;
+
+            CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
+            cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), p_diff_type);
+
+            VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+
+            boost::shared_ptr<AbstractCellProperty> type_1(new CellType(1, 5));
+            boost::shared_ptr<AbstractCellProperty> type_2(new CellType(2, 6));
+            boost::shared_ptr<AbstractCellProperty> type_3(new CellType(3, 4));
+
+            for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+                    cell_iter != cell_population.End();
+                    ++cell_iter)
+            {
+                if (double r = RandomNumberGenerator::Instance()->ranf() < 0.33)
+                {
+                    cell_iter->AddCellProperty(type_1);
+                }
+                else if ((0.33 <= r) and (r < 0.66))
+                {
+                    cell_iter->AddCellProperty(type_2);
+                }
+                else
+                {
+                    cell_iter->AddCellProperty(type_3);
+                }
+            }
+
+            OffLatticeSimulation<2> simulator(cell_population);
+            simulator.SetOutputDirectory("VertexBasedMonolayerWithMultipleDifferentialAdhesion");
+            simulator.SetSamplingTimestepMultiple(50);
+            simulator.SetEndTime(50.0);
+
+            MAKE_PTR(NagaiHondaMultipleDifferentialAdhesionForce<2>, p_force);
+
+            std::vector<std::vector<double> > adhesion_matrix(4, std::vector<double>(4, 0.0));
+
+            adhesion_matrix[3][3] = 6.0;
+            adhesion_matrix[2][2] = 1.0;
+            adhesion_matrix[1][1] = 1.0;
+            adhesion_matrix[2][3] = adhesion_matrix[3][2] = 5.0;
+            adhesion_matrix[0][1] = adhesion_matrix[1][0] = 10.0;
+            adhesion_matrix[0][2] = adhesion_matrix[2][0] = 10.0;
+            adhesion_matrix[0][3] = adhesion_matrix[3][0] = 10.0;
+
+            p_force->SetNagaiHondaAdhesionMatrix(adhesion_matrix);
+            p_force->SetNagaiHondaDeformationEnergyParameter(55.0);
+            p_force->SetNagaiHondaMembraneSurfaceEnergyParameter(30.0);
+            simulator.AddForce(p_force);
+
+            MAKE_PTR(SimpleTargetAreaModifier<2>, p_growth_modifier);
+            simulator.AddSimulationModifier(p_growth_modifier);
+
+            simulator.Solve();
+        }
 };
 
 #endif /* TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_ */
