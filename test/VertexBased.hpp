@@ -155,11 +155,11 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
             p_mesh->SetCellRearrangementThreshold(0.1);
 
-            MAKE_PTR(DifferentiatedCellProliferativeType, p_diff_type);
+            MAKE_PTR(TransitCellProliferativeType, p_transit_type);
             std::vector<CellPtr> cells;
 
             CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-            cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), p_diff_type);
+            cells_generator.GenerateBasic(cells, p_mesh->GetNumElements(), std::vector<unsigned>(), p_transit_type);
 
             VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
@@ -188,7 +188,7 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayerWithMultipleDifferentialAdhesion");
             simulator.SetSamplingTimestepMultiple(50);
-            simulator.SetEndTime(50.0);
+            simulator.SetEndTime(5.0);
 
             MAKE_PTR(NagaiHondaMultipleDifferentialAdhesionForce<2>, p_force);
 
