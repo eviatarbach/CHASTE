@@ -5,13 +5,20 @@
 
 template<unsigned DIM>
 AppliedForce<DIM>::AppliedForce()
-    : AbstractForce<DIM>()
+    : AbstractForce<DIM>(),
+    mForceMap()
 {
 }
 
 template<unsigned DIM>
 AppliedForce<DIM>::~AppliedForce()
 {
+}
+
+template<unsigned DIM>
+void AppliedForce<DIM>::SetForceMap(std::map <unsigned, c_vector<double,DIM> > forceMap)
+{
+    mForceMap = forceMap;
 }
 
 template<unsigned DIM>
@@ -24,18 +31,19 @@ void AppliedForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM,DIM>& rC
                 cell_iter != pCellPopulation->End();
                 ++cell_iter)
         {
-            VertexElement<DIM,DIM>* pElement = pCellPopulation->GetElementCorrespondingToCell(*cell_iter);
-
-            c_vector<double,DIM> force;
-            force[0] = 1.0;
-            force[1] = 0.0;
-
-            for (unsigned local_index=0; local_index < pElement->GetNumNodes(); local_index++)
+            unsigned cell_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
+            if (mForceMap.find(cell_index) != mForceMap.end())
             {
-                unsigned global_index = pElement->GetNodeGlobalIndex(local_index);
-                pCellPopulation->GetNode(global_index)->AddAppliedForceContribution(force);
-            }
+                VertexElement<DIM,DIM>* pElement = pCellPopulation->GetElementCorrespondingToCell(*cell_iter);
 
+                c_vector<double,DIM> force = mForceMap[cell_index];
+
+                for (unsigned local_index=0; local_index < pElement->GetNumNodes(); local_index++)
+                {
+                    unsigned global_index = pElement->GetNodeGlobalIndex(local_index);
+                    pCellPopulation->GetNode(global_index)->AddAppliedForceContribution(force);
+                }
+            }
         }
     }
 }

@@ -84,6 +84,10 @@ class TestForceSimulations : public AbstractCellBasedTestSuite
             simulator.SetEndTime(5.0);
 
             MAKE_PTR(AppliedForce<2>, a_force);
+            std::map <unsigned, c_vector<double,2> > force_map;
+            force_map[0][0] = 1.0;
+            force_map[0][1] = 0.0;
+            a_force->SetForceMap(force_map);
             simulator.AddForce(a_force);
 
             MAKE_PTR(NagaiHondaMultipleDifferentialAdhesionForce<2>, p_force);
