@@ -57,7 +57,7 @@ class TestForceSimulations : public AbstractCellBasedTestSuite
     public:
         void TestAppliedForce()
         {
-            HoneycombVertexMeshGenerator generator(1, 1);
+            HoneycombVertexMeshGenerator generator(6, 6);
             MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
             p_mesh->SetCellRearrangementThreshold(0.1);
 
@@ -81,12 +81,12 @@ class TestForceSimulations : public AbstractCellBasedTestSuite
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("ForceTest");
             simulator.SetSamplingTimestepMultiple(10);
-            simulator.SetEndTime(5.0);
+            simulator.SetEndTime(10.0);
 
             MAKE_PTR(AppliedForce<2>, a_force);
             std::map <unsigned, c_vector<double,2> > force_map;
-            force_map[0][0] = 1.0;
-            force_map[0][1] = 0.0;
+            force_map[3][0] = 0.0;
+            force_map[3][1] = 2.0;
             a_force->SetForceMap(force_map);
             simulator.AddForce(a_force);
 
@@ -94,7 +94,8 @@ class TestForceSimulations : public AbstractCellBasedTestSuite
 
             std::vector<std::vector<double> > adhesion_matrix(4, std::vector<double>(4, 0.0));
 
-            adhesion_matrix[0][1] = adhesion_matrix[1][0] = 1.0;
+            adhesion_matrix[0][1] = adhesion_matrix[1][0] = 5.0;
+            adhesion_matrix[1][1] = 1.0;
 
             p_force->SetNagaiHondaAdhesionMatrix(adhesion_matrix);
             p_force->SetNagaiHondaDeformationEnergyParameter(55.0);
