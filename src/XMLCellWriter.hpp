@@ -1,6 +1,7 @@
 #ifndef ABSTRACTXMLCELLBASEDWRITER_HPP_
 #define ABSTRACTXMLCELLBASEDWRITER_HPP_
 
+#include <string>
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include "AbstractCellWriter.hpp"
@@ -9,6 +10,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class XMLCellWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
 {
     private:
+        std::string mSimulationType;
+        std::string mTypeList;
+        std::string mAxisDivision;
+        std::string mCellCycleModel;
+        std::string mExtraSimInfo;
+
         /** Needed for serialization. */
         friend class boost::serialization::access;
         /**
@@ -25,6 +32,10 @@ class XMLCellWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
 
     public:
         XMLCellWriter();
+
+        void SetSimulationInfo(std::string simulationType, std::string typeList,
+                      std::string axisDivision, std::string cellCycleModel,
+                      std::string extraSimInfo);
 
         void VisitCell(CellPtr pCell, AbstractCellPopulation<ELEMENT_DIM, SPACE_DIM>* pCellPopulation);
 

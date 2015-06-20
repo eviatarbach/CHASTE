@@ -34,6 +34,9 @@ void AppliedForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM,DIM>& rC
             unsigned cell_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
             if (mForceMap.find(cell_index) != mForceMap.end())
             {
+                boost::shared_ptr<AbstractCellProperty> force_label(new CellLabel(1));
+                cell_iter->AddCellProperty(force_label);
+
                 VertexElement<DIM,DIM>* pElement = pCellPopulation->GetElementCorrespondingToCell(*cell_iter);
 
                 c_vector<double,DIM> force = mForceMap[cell_index];

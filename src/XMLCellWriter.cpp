@@ -2,7 +2,11 @@
 #include "XMLCellWriter.hpp"
 #include "AbstractCellWriter.hpp"
 #include "AbstractCellPopulation.hpp"
+#include "VertexBasedCellPopulation.hpp"
 #include "SimulationTime.hpp"
+#include "CellType.hpp"
+#include "MutableVertexMesh.hpp"
+#include "VertexMesh.hpp"
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::XMLCellWriter()
@@ -11,10 +15,27 @@ XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::XMLCellWriter()
 };
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::SetSimulationInfo(std::string simulationType="", std::string typeList="",
+        std::string axisDivision="", std::string cellCycleModel="", std::string extraSimInfo="")
+{
+    mSimulationType = simulationType;
+    mTypeList = typeList;
+    mAxisDivision = axisDivision;
+    mCellCycleModel = cellCycleModel;
+    mExtraSimInfo = extraSimInfo;
+}
+
+    template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::OpenOutputFile(OutputFileHandler& rOutputFileHandler)
 {
     AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>::OpenOutputFile(rOutputFileHandler);
-    *this->mpOutStream << "<simulation>\n";
+    *this->mpOutStream << "<simulation simulation_type=\"" << mSimulationType << "\" ";
+    *this->mpOutStream << "type_list=\"" << mTypeList << "\" ";
+    *this->mpOutStream << "axis_division=\"" << mAxisDivision << "\" ";
+    *this->mpOutStream << "cell_cycle_model=\"" << mCellCycleModel << "\" ";
+    *this->mpOutStream << "time_step=\"" << SimulationTime::Instance()->GetTimeStep() << "\" ";
+    *this->mpOutStream << "extra_sim_info=\"" << mExtraSimInfo << "\"";
+    *this->mpOutStream << ">\n";
 }
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -26,7 +47,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::WriteNewline()
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::WriteTimeStamp()
 {
-    *this->mpOutStream << "<time t=\"" << SimulationTime::Instance()->GetTime() << "\">\n";
+    *this->mpOutStream << "<time t=\"" << SimulationTime::Instance()->GetTime() << "\" tau=\"" << SimulationTime::Instance()->GetTimeStepsElapsed() << "\">\n";
 }
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -34,11 +55,11 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 {
     *this->mpOutStream << "<cell ";
 
-    //unsigned location_index = pCellPopulation->GetLocationIndexUsingCell(pCell);
-
     unsigned cell_id = pCell->GetCellId();
     c_vector<double, SPACE_DIM> centre_location = pCellPopulation->GetLocationOfCellCentre(pCell);
     double volume = pCellPopulation->GetVolumeOfCell(pCell);
+
+    unsigned location_index = pCellPopulation->GetLocationIndexUsingCell(pCell);
 
     *this->mpOutStream << "cell_id=\"" << cell_id << "\" ";
 
@@ -82,28 +103,22 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     *this->mpOutStream << "\" ";
 
-    std::string state = pCell->GetCellProliferativeType()->GetIdentifier();
-
-    boost::regex state_regex("([\\w]+)CellProliferativeType");
-    boost::smatch match;
-
-    if (boost::regex_search(state, match, state_regex))
+    if (pCell->HasCellProperty<CellType>())
     {
-        state = match[1];
-        state[0] = ::tolower(state[0]);
+        CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<CellType>();
+        boost::shared_ptr<CellType> p_type = boost::static_pointer_cast<CellType>(collection.GetProperty());
+        unsigned type = p_type->GetType();
+        *this->mpOutStream << "type=\"" << type << "\" ";
     }
 
-    *this->mpOutStream << "state=\"" << state << "\" ";
-
-    unsigned label = 0;
-    if (pCell->HasCellProperty<CellLabel>())
+    if (dynamic_cast<VertexBasedCellPopulation<ELEMENT_DIM>*>(pCellPopulation))
     {
-        CellPropertyCollection collection = pCell->rGetCellPropertyCollection().GetProperties<CellLabel>();
-        boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
-        label = p_label->GetColour();
-    }
+        double elongation = dynamic_cast<VertexBasedCellPopulation<ELEMENT_DIM>*>(pCellPopulation)->rGetMesh().GetElongationShapeFactorOfElement(location_index);
+        *this->mpOutStream << "elongation=\"" << elongation << "\" ";
 
-    *this->mpOutStream << "label=\"" << label << "\" ";
+        c_vector<double, SPACE_DIM> short_axis = dynamic_cast<VertexBasedCellPopulation<ELEMENT_DIM>*>(pCellPopulation)->rGetMesh().GetShortAxisOfElement(location_index);
+        *this->mpOutStream << "minor_axis=\"" << short_axis[0] << " " << short_axis[1] << "\" ";
+    }
 
     *this->mpOutStream << "/>\n";
 }
