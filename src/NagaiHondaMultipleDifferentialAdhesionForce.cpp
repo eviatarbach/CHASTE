@@ -1,9 +1,10 @@
 #include "NagaiHondaMultipleDifferentialAdhesionForce.hpp"
+#include "NagaiHondaContractilityForce.hpp"
 #include "CellType.hpp"
 
 template<unsigned DIM>
 NagaiHondaMultipleDifferentialAdhesionForce<DIM>::NagaiHondaMultipleDifferentialAdhesionForce()
-    : NagaiHondaForce<DIM>(),
+    : NagaiHondaContractilityForce<DIM>(),
     mAdhesionMatrix(2, std::vector<double>(2, 1.0))
 {
 }

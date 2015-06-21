@@ -120,6 +120,35 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
         *this->mpOutStream << "minor_axis=\"" << short_axis[0] << " " << short_axis[1] << "\" ";
     }
 
+    try
+    {
+        double ext_force_x = pCell->GetCellData()->GetItem("ext_force_x");
+        double ext_force_y = pCell->GetCellData()->GetItem("ext_force_y");
+        *this->mpOutStream << "ext_force\"" << ext_force_x << " " << ext_force_y << "\" ";
+    }
+    catch (Exception& e)
+    {
+    }
+
+    try
+    {
+        double polarity_x = pCell->GetCellData()->GetItem("polarity_x");
+        double polarity_y = pCell->GetCellData()->GetItem("polarity_y");
+        *this->mpOutStream << "polarity\"" << polarity_x << " " << polarity_y << "\" ";
+    }
+    catch (Exception& e)
+    {
+    }
+
+    try
+    {
+        double contractility = pCell->GetCellData()->GetItem("contractility");
+        *this->mpOutStream << "contractility\"" << contractility << "\" ";
+    }
+    catch (Exception& e)
+    {
+    }
+
     *this->mpOutStream << "/>\n";
 }
 

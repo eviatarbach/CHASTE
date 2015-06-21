@@ -4,7 +4,7 @@
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "NagaiHondaForce.hpp"
+#include "NagaiHondaContractilityForce.hpp"
 
 #include <iostream>
 
@@ -21,7 +21,7 @@
  * Honda (who denote the parameter by nu) take the value 0.01.
  */
 template<unsigned DIM>
-class NagaiHondaMultipleDifferentialAdhesionForce  : public NagaiHondaForce<DIM>
+class NagaiHondaMultipleDifferentialAdhesionForce  : public NagaiHondaContractilityForce<DIM>
 {
 private:
 
@@ -42,7 +42,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<NagaiHondaForce<DIM> >(*this);
+        archive & boost::serialization::base_object<NagaiHondaContractilityForce<DIM> >(*this);
         archive & mAdhesionMatrix;
     }
 

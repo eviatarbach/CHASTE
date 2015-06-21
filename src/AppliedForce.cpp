@@ -41,6 +41,9 @@ void AppliedForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM,DIM>& rC
 
                 c_vector<double,DIM> force = mForceMap[cell_index];
 
+                cell_iter->GetCellData()->SetItem("ext_force_x", force[0]);
+                cell_iter->GetCellData()->SetItem("ext_force_y", force[1]);
+
                 for (unsigned local_index=0; local_index < pElement->GetNumNodes(); local_index++)
                 {
                     unsigned global_index = pElement->GetNodeGlobalIndex(local_index);
