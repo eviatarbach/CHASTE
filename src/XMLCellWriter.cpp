@@ -10,14 +10,16 @@
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::XMLCellWriter()
-    : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("cell_data.xml")
+    : AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>("cell_data.xml"),
+    mDeformationParameter(DOUBLE_UNSET)
 {
 };
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::SetSimulationInfo(std::string simulationType="", std::string typeList="",
+void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::SetSimulationInfo(double deformationParameter, std::string simulationType="", std::string typeList="",
         std::string axisDivision="", std::string cellCycleModel="", std::string extraSimInfo="")
 {
+    mDeformationParameter = deformationParameter;
     mSimulationType = simulationType;
     mTypeList = typeList;
     mAxisDivision = axisDivision;
@@ -147,6 +149,11 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     }
     catch (Exception& e)
     {
+    }
+
+    if (mDeformationParameter != DOUBLE_UNSET)
+    {
+        *this->mpOutStream << "pressure\"" << 2*mDeformationParameter*(pCell->GetCellData()->GetItem("target area") - volume);
     }
 
     *this->mpOutStream << "/>\n";
