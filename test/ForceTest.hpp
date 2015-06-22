@@ -7,7 +7,7 @@
 
 #include "CellsGenerator.hpp"
 #include "OffLatticeSimulation.hpp"
-#include "TransitCellProliferativeType.hpp"
+#include "DifferentiatedCellProliferativeType.hpp"
 #include "SmartPointers.hpp"
 
 #include "StochasticDurationCellCycleModel.hpp"
@@ -81,7 +81,7 @@ class TestForceSimulations : public AbstractCellBasedTestSuite
                 if (index == 18)
                 {
                     cell_iter->AddCellProperty(type_2);
-                    cell_iter->AddCellProperty(label);
+                    //cell_iter->AddCellProperty(label);
                 }
                 else
                 {

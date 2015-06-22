@@ -26,7 +26,19 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
 
     try
     {
-        cell_target_area = pCell->GetCellData()->GetItem("target area");
+        double cell_age = pCell->GetAge();
+        double time_step = SimulationTime::Instance()->GetTimeStep();
+
+        // TODO: make sure this is right
+        if (cell_age > time_step + 10*DBL_EPSILON)
+        {
+            cell_target_area = pCell->GetCellData()->GetItem("target area");
+        }
+        else
+        {
+            // This is a new cell
+            cell_target_area = pCell->GetCellData()->GetItem("starting area");
+        }
     }
     catch (Exception& e)
     {
@@ -38,37 +50,9 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
         pCell->GetCellData()->SetItem("starting area", volume);
     }
 
-    double g1_duration = pCell->GetCellCycleModel()->GetG1Duration();
-
-    // If the cell is differentiated then its G1 duration is infinite
-    if (g1_duration == DBL_MAX) // don't use magic number, compare to DBL_MAX
-    {
-        // This is just for fixed cell-cycle models, need to work out how to find the g1 duration
-        g1_duration = pCell->GetCellCycleModel()->GetTransitCellG1Duration();
-    }
-
-    double cell_age = pCell->GetAge();
-
-    if (cell_age < g1_duration)
-    {
-        double perimeter = pCell->GetCellData()->GetItem("boundary");
-        double mediumContact = perimeter - pCell->GetCellData()->GetItem("contact_boundary");
-        cell_target_area += mScalingParameter/(1.0 + std::exp(-2.0*(mediumContact/perimeter)));
-    }
-    else
-    {
-        /**
-         * At division, daughter cells inherit the cell data array from the mother cell.
-         * Here, we assign the target area that we want daughter cells to have to cells
-         * that we know to divide in this time step.
-         *
-         * \todo This is a little hack that we might want to clean up in the future.
-         */
-        if (pCell->ReadyToDivide())
-        {
-            cell_target_area = pCell->GetCellData()->GetItem("starting area");
-        }
-    }
+    double perimeter = pCell->GetCellData()->GetItem("boundary");
+    double mediumContact = perimeter - pCell->GetCellData()->GetItem("contact_boundary");
+    cell_target_area += mScalingParameter/(1.0 + std::exp(-2.0*(mediumContact/perimeter)));
 
     // Set cell data
     pCell->GetCellData()->SetItem("target area", cell_target_area);

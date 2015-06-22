@@ -19,11 +19,14 @@
 
 #include "NagaiHondaForce.hpp"
 
+#include "ContactInhibitionTargetAreaModifier.hpp"
 #include "SimpleTargetAreaModifier.hpp"
 #include "AncestorTrackingModifier.hpp"
 #include "BoundaryTrackingModifier.hpp"
 #include "ContactBoundaryTrackingModifier.hpp"
 #include "GenerationTrackingModifier.hpp"
+#include "PressureTrackingModifier.hpp"
+#include "VolumeTrackingModifier.hpp"
 
 #include "WildTypeCellMutationState.hpp"
 #include "PlaneBoundaryCondition.hpp"
@@ -77,10 +80,8 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             simulator.SetSamplingTimestepMultiple(50);
 
             MAKE_PTR(NagaiHondaForce<2>, p_force);
+            p_force->SetNagaiHondaDeformationEnergyParameter(55.0);
             simulator.AddForce(p_force);
-
-            MAKE_PTR(SimpleTargetAreaModifier<2>, p_growth_modifier);
-            simulator.AddSimulationModifier(p_growth_modifier);
 
             MAKE_PTR(AncestorTrackingModifier<2>, p_ancestor_modifier);
             simulator.AddSimulationModifier(p_ancestor_modifier);
@@ -93,6 +94,17 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
 
             MAKE_PTR(ContactBoundaryTrackingModifier<2>, p_contact_boundary_modifier);
             simulator.AddSimulationModifier(p_contact_boundary_modifier);
+
+            MAKE_PTR(VolumeTrackingModifier<2>, p_volume_modifier);
+            simulator.AddSimulationModifier(p_volume_modifier);
+
+            // Has to be added after volume modifier!
+            MAKE_PTR(ContactInhibitionTargetAreaModifier<2>, p_growth_modifier);
+            simulator.AddSimulationModifier(p_growth_modifier);
+
+            MAKE_PTR(PressureTrackingModifier<2>, p_pressure_modifier);
+            p_pressure_modifier->SetDeformationParameter(55.0);
+            simulator.AddSimulationModifier(p_pressure_modifier);
 
             simulator.Solve();
         }
@@ -119,7 +131,7 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             }
 
             VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
-            cell_population.AddCellWriter<XMLCellWriter>();
+            //cell_population.AddCellWriter<XMLCellWriter>();
 
             OffLatticeSimulation<2> simulator(cell_population);
             simulator.SetOutputDirectory("VertexBasedMonolayerWithContactInhibition");

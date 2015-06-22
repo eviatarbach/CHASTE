@@ -10,7 +10,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class XMLCellWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
 {
     private:
-        double mDeformationParameter;
         std::string mSimulationType;
         std::string mTypeList;
         std::string mAxisDivision;
@@ -34,7 +33,7 @@ class XMLCellWriter : public AbstractCellWriter<ELEMENT_DIM, SPACE_DIM>
     public:
         XMLCellWriter();
 
-        void SetSimulationInfo(double deformationParameter, std::string simulationType, std::string typeList,
+        void SetSimulationInfo(std::string simulationType, std::string typeList,
                 std::string axisDivision, std::string cellCycleModel,
                 std::string extraSimInfo);
 

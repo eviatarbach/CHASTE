@@ -2,6 +2,7 @@
 #include "VertexElement.hpp"
 #include "CellwiseDataGradient.hpp"
 #include "VertexBasedCellPopulation.hpp"
+#include "CellLabel.hpp"
 
 template<unsigned DIM>
 AppliedForce<DIM>::AppliedForce()
@@ -34,8 +35,11 @@ void AppliedForce<DIM>::AddForceContribution(AbstractCellPopulation<DIM,DIM>& rC
             unsigned cell_index = pCellPopulation->GetLocationIndexUsingCell(*cell_iter);
             if (mForceMap.find(cell_index) != mForceMap.end())
             {
-                boost::shared_ptr<AbstractCellProperty> force_label(new CellLabel(1));
-                cell_iter->AddCellProperty(force_label);
+                if (!(cell_iter->template HasCellProperty<CellLabel>()))
+                {
+                    boost::shared_ptr<AbstractCellProperty> force_label(new CellLabel(1));
+                    cell_iter->AddCellProperty(force_label);
+                }
 
                 VertexElement<DIM,DIM>* pElement = pCellPopulation->GetElementCorrespondingToCell(*cell_iter);
 
