@@ -30,8 +30,12 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
     }
     catch (Exception& e)
     {
-        // Get target area A of a healthy cell in S, G2 or M phase
-        cell_target_area = this->mReferenceTargetArea;
+        // This is the beginning of the simulation; the target area should start at the cell's initial area
+        double volume = pCell->GetCellData()->GetItem("volume");
+        cell_target_area = volume;
+
+        // Record the starting area for setting the target area of daughter cells
+        pCell->GetCellData()->SetItem("starting area", volume);
     }
 
     double g1_duration = pCell->GetCellCycleModel()->GetG1Duration();
@@ -43,26 +47,6 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
         g1_duration = pCell->GetCellCycleModel()->GetTransitCellG1Duration();
     }
 
-    /*
-    if (pCell->HasCellProperty<ApoptoticCellProperty>())
-    {
-        // Age of cell when apoptosis begins
-        if (pCell->GetStartOfApoptosisTime() - pCell->GetBirthTime() < g1_duration)
-        {
-            cell_target_area *= 0.5*(1 + (pCell->GetStartOfApoptosisTime() - pCell->GetBirthTime())/g1_duration);
-        }
-
-        // The target area of an apoptotic cell decreases linearly to zero (and past it negative)
-        cell_target_area = cell_target_area - 0.5*cell_target_area/(pCell->GetApoptosisTime())*(SimulationTime::Instance()->GetTime()-pCell->GetStartOfApoptosisTime());
-
-        // Don't allow a negative target area
-        if (cell_target_area < 0)
-        {
-            cell_target_area = 0;
-        }
-    }
-    else
-    {*/
     double cell_age = pCell->GetAge();
 
     if (cell_age < g1_duration)
@@ -82,10 +66,9 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
          */
         if (pCell->ReadyToDivide())
         {
-            cell_target_area = 0.5*this->mReferenceTargetArea;
+            cell_target_area = pCell->GetCellData()->GetItem("starting area");
         }
     }
-    //}
 
     // Set cell data
     pCell->GetCellData()->SetItem("target area", cell_target_area);
