@@ -51,6 +51,7 @@
 #include "VolumeTrackingModifier.hpp"
 
 #include "NagaiHondaMultipleDifferentialAdhesionForce.hpp"
+#include "FixedAreaCellCycleModel.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -64,10 +65,24 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
             MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
             std::vector<CellPtr> cells;
+            MAKE_PTR(WildTypeCellMutationState, p_state);
             MAKE_PTR(TransitCellProliferativeType, p_transit_type);
 
-            CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
-            cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), p_transit_type);
+            for (unsigned i=0; i<p_mesh->GetNumElements(); i++)
+            {
+                FixedAreaCellCycleModel* p_cycle_model = new FixedAreaCellCycleModel();
+                p_cycle_model->SetDimension(2);
+                p_cycle_model->SetBirthTime(0.0); // So all out of M phase
+                p_cycle_model->SetDivisionVolume(1.5);
+
+                CellPtr p_cell(new Cell(p_state, p_cycle_model));
+                p_cell->SetCellProliferativeType(p_transit_type);
+                p_cell->InitialiseCellCycleModel();
+                cells.push_back(p_cell);
+            }
+
+            //CellsGenerator<StochasticDurationCellCycleModel, 2> cells_generator;
+            //cells_generator.GenerateBasicRandom(cells, p_mesh->GetNumElements(), p_transit_type);
 
             VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
@@ -100,6 +115,7 @@ class TestRunningVertexBasedSimulations : public AbstractCellBasedTestSuite
 
             // Has to be added after volume modifier!
             MAKE_PTR(ContactInhibitionTargetAreaModifier<2>, p_growth_modifier);
+            p_growth_modifier->SetScalingParameter(0.0005);
             simulator.AddSimulationModifier(p_growth_modifier);
 
             MAKE_PTR(PressureTrackingModifier<2>, p_pressure_modifier);
