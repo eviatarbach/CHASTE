@@ -1,6 +1,7 @@
 #include "FixedAreaCellCycleModel.hpp"
 #include "CellLabel.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
+#include "RandomNumberGenerator.hpp"
 
 FixedAreaCellCycleModel::FixedAreaCellCycleModel()
     : AbstractSimpleCellCycleModel(),
@@ -25,12 +26,14 @@ void FixedAreaCellCycleModel::UpdateCellCyclePhase()
     // Removes the cell label
     mpCell->RemoveCellProperty<CellLabel>();
 
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+
+    double dt = SimulationTime::Instance()->GetTimeStep();
     if (mCurrentCellCyclePhase == G_ONE_PHASE)
     {
         // Update G1 duration based on cell volume
-        double dt = SimulationTime::Instance()->GetTimeStep();
 
-        if (cell_volume < mDivisionVolume)
+        if (cell_volume < mDivisionVolume - p_gen->ranf()/4.0)
         {
             mG1Duration += dt;
         }
@@ -38,6 +41,7 @@ void FixedAreaCellCycleModel::UpdateCellCyclePhase()
 
     double time_since_birth = GetAge();
     assert(time_since_birth >= 0);
+
 
     if (mpCell->GetCellProliferativeType()->IsType<DifferentiatedCellProliferativeType>())
     {
