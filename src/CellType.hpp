@@ -27,6 +27,10 @@ protected:
      */
     unsigned mColour;
 
+    double mAreaDeformationParameter;
+
+    double mPerimeterDeformationParameter;
+
 private:
 
     /** Needed for serialization. */
@@ -52,7 +56,8 @@ public:
      *
      * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
      */
-    CellType(unsigned type=1, unsigned colour=5);
+    CellType(unsigned type=1, unsigned colour=5, double areaDeformationParameter=100.0,
+            double perimeterDeformationParameter=10.0);
 
     /**
      * Destructor.
@@ -65,6 +70,10 @@ public:
      * @return #mColour.
      */
     unsigned GetColour() const;
+
+    double GetAreaDeformationParameter() const;
+
+    double GetPerimeterDeformationParameter() const;
 };
 
 #include "SerializationExportWrapper.hpp"

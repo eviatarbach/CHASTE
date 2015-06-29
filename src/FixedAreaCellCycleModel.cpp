@@ -24,16 +24,16 @@ void FixedAreaCellCycleModel::UpdateCellCyclePhase()
     double cell_volume = mpCell->GetCellData()->GetItem("volume");
 
     // Removes the cell label
-    mpCell->RemoveCellProperty<CellLabel>();
+    //mpCell->RemoveCellProperty<CellLabel>();
 
-    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     double dt = SimulationTime::Instance()->GetTimeStep();
     if (mCurrentCellCyclePhase == G_ONE_PHASE)
     {
         // Update G1 duration based on cell volume
 
-        if (cell_volume < mDivisionVolume - p_gen->ranf()/4.0)
+        if (cell_volume < mDivisionVolume)
         {
             mG1Duration += dt;
         }

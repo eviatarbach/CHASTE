@@ -52,7 +52,7 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
 
     double perimeter = pCell->GetCellData()->GetItem("boundary");
     double mediumContact = perimeter - pCell->GetCellData()->GetItem("contact_boundary");
-    cell_target_area += mScalingParameter/(1.0 + std::exp(-2.0*(mediumContact/perimeter)));
+    cell_target_area += mScalingParameter/(1.0 + std::exp(-(mediumContact/perimeter)));
 
     // Set cell data
     pCell->GetCellData()->SetItem("target area", cell_target_area);

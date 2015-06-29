@@ -1,4 +1,5 @@
 #include "NagaiHondaContractilityForce.hpp"
+#include "CellType.hpp"
 
 template<unsigned DIM>
 NagaiHondaContractilityForce<DIM>::NagaiHondaContractilityForce()
@@ -101,9 +102,27 @@ void NagaiHondaContractilityForce<DIM>::AddForceContribution(AbstractCellPopulat
             // Find the local index of this node in this element
             unsigned local_index = p_element->GetNodeLocalIndex(node_index);
 
+            // Get type-specific deformation parameters
+            double areaDeformationParameter;
+            double perimeterDeformationParameter;
+            CellPtr p_cell = p_cell_population->GetCellUsingLocationIndex(elem_index);
+
+            if (p_cell->template HasCellProperty<CellType>())
+            {
+                CellPropertyCollection type_collection = p_cell->rGetCellPropertyCollection().GetPropertiesType<CellType>();
+                boost::shared_ptr<CellType> p_type = boost::static_pointer_cast<CellType>(type_collection.GetProperty());
+                areaDeformationParameter = p_type->GetAreaDeformationParameter();
+                perimeterDeformationParameter = p_type->GetPerimeterDeformationParameter();
+            }
+            else
+            {
+                areaDeformationParameter = GetNagaiHondaDeformationEnergyParameter();
+                perimeterDeformationParameter = GetNagaiHondaMembraneSurfaceEnergyParameter();
+            }
+
             // Add the force contribution from this cell's deformation energy (note the minus sign)
             c_vector<double, DIM> element_area_gradient = p_cell_population->rGetMesh().GetAreaGradientOfElementAtNode(p_element, local_index);
-            deformation_contribution -= 2*GetNagaiHondaDeformationEnergyParameter()*(element_areas[elem_index] - target_areas[elem_index])*element_area_gradient;
+            deformation_contribution -= 2*areaDeformationParameter*(element_areas[elem_index] - target_areas[elem_index])*element_area_gradient;
 
             // Add the contractility contribution
             contractility_contribution -= 2*contractilities[elem_index]*element_area_gradient;
@@ -129,7 +148,7 @@ void NagaiHondaContractilityForce<DIM>::AddForceContribution(AbstractCellPopulat
             // Add the force contribution from this cell's membrane surface tension (note the minus sign)
             c_vector<double, DIM> element_perimeter_gradient = previous_edge_gradient + next_edge_gradient;
             double cell_target_perimeter = 2*sqrt(M_PI*target_areas[elem_index]);
-            membrane_surface_tension_contribution -= 2*GetNagaiHondaMembraneSurfaceEnergyParameter()*(element_perimeters[elem_index] - cell_target_perimeter)*element_perimeter_gradient;
+            membrane_surface_tension_contribution -= 2*perimeterDeformationParameter*(element_perimeters[elem_index] - cell_target_perimeter)*element_perimeter_gradient;
         }
 
         c_vector<double, DIM> force_on_node = deformation_contribution + membrane_surface_tension_contribution + adhesion_contribution + contractility_contribution;
