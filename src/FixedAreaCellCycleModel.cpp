@@ -2,15 +2,17 @@
 #include "CellLabel.hpp"
 #include "DifferentiatedCellProliferativeType.hpp"
 #include "RandomNumberGenerator.hpp"
+#include <time.h>
 
 FixedAreaCellCycleModel::FixedAreaCellCycleModel()
     : AbstractSimpleCellCycleModel(),
       mDivisionVolume(DOUBLE_UNSET)
 {
-    mG1Duration = 0.001;
-    mG2Duration = 0.1;
-    mSDuration = 0.1;
-    mMDuration = 0.1;
+    double dt = 0.002;//SimulationTime::Instance()->GetTimeStep();
+    mG1Duration = 5*dt;
+    mG2Duration = dt;
+    mSDuration = dt;
+    mMDuration = dt;
 }
 
 void FixedAreaCellCycleModel::UpdateCellCyclePhase()
@@ -26,7 +28,8 @@ void FixedAreaCellCycleModel::UpdateCellCyclePhase()
     // Removes the cell label
     //mpCell->RemoveCellProperty<CellLabel>();
 
-    //RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+    p_gen->Reseed(time(NULL));
 
     double dt = SimulationTime::Instance()->GetTimeStep();
     if (mCurrentCellCyclePhase == G_ONE_PHASE)
@@ -35,7 +38,7 @@ void FixedAreaCellCycleModel::UpdateCellCyclePhase()
 
         if (cell_volume < mDivisionVolume)
         {
-            mG1Duration += dt;
+            mG1Duration += dt;// + p_gen->NormalRandomDeviate(0.0, 0.0005)/30;
         }
     }
 
@@ -103,6 +106,22 @@ void FixedAreaCellCycleModel::SetG1Duration()
 void FixedAreaCellCycleModel::SetDivisionVolume(double divisionVolume)
 {
     mDivisionVolume = divisionVolume;
+}
+
+bool FixedAreaCellCycleModel::ReadyToDivide()
+{
+    assert(mpCell != NULL);
+
+    double volume = mpCell->GetCellData()->GetItem("volume");
+
+    if (!mReadyToDivide)
+    {
+        if (volume >= mDivisionVolume)
+        {
+            mReadyToDivide = true;
+        }
+    }
+    return mReadyToDivide;
 }
 
 void FixedAreaCellCycleModel::OutputCellCycleModelParameters(out_stream& rParamsFile)

@@ -37,6 +37,8 @@ public:
      */
     void UpdateCellCyclePhase();
 
+    bool ReadyToDivide();
+
     /**
      * Overridden builder method to create new instances of
      * the cell-cycle model.

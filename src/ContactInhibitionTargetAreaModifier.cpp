@@ -4,7 +4,8 @@
 template<unsigned DIM>
 ContactInhibitionTargetAreaModifier<DIM>::ContactInhibitionTargetAreaModifier()
     : AbstractTargetAreaModifier<DIM>(),
-    mScalingParameter(0.01)
+    mScalingParameter(0.01),
+    mExponent(1.0)
 {
 }
 
@@ -17,6 +18,12 @@ template<unsigned DIM>
 void ContactInhibitionTargetAreaModifier<DIM>::SetScalingParameter(double scalingParameter)
 {
     mScalingParameter = scalingParameter;
+}
+
+template<unsigned DIM>
+void ContactInhibitionTargetAreaModifier<DIM>::SetExponent(double exponent)
+{
+    mExponent = exponent;
 }
 
 template<unsigned DIM>
@@ -52,7 +59,7 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
 
     double perimeter = pCell->GetCellData()->GetItem("boundary");
     double mediumContact = perimeter - pCell->GetCellData()->GetItem("contact_boundary");
-    cell_target_area += mScalingParameter/(1.0 + std::exp(-(mediumContact/perimeter)));
+    cell_target_area += mScalingParameter/(1.0 + std::exp(-mExponent*(mediumContact/perimeter)));
 
     // Set cell data
     pCell->GetCellData()->SetItem("target area", cell_target_area);

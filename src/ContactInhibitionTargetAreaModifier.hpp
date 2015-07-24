@@ -15,6 +15,7 @@ template<unsigned DIM>
 class ContactInhibitionTargetAreaModifier : public AbstractTargetAreaModifier<DIM>
 {
     double mScalingParameter;
+    double mExponent;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -44,6 +45,8 @@ public:
     virtual ~ContactInhibitionTargetAreaModifier();
 
     void SetScalingParameter(double scalingParameter);
+
+    void SetExponent(double exponent);
 
     /**
      * Overridden UpdateTargetAreaOfCell() method.

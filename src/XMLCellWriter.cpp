@@ -124,7 +124,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     {
         double ext_force_x = pCell->GetCellData()->GetItem("ext_force_x");
         double ext_force_y = pCell->GetCellData()->GetItem("ext_force_y");
-        *this->mpOutStream << "ext_force\"" << ext_force_x << " " << ext_force_y << "\" ";
+        *this->mpOutStream << "ext_force=\"" << ext_force_x << " " << ext_force_y << "\" ";
     }
     catch (Exception& e)
     {
@@ -134,7 +134,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     {
         double polarity_x = pCell->GetCellData()->GetItem("polarity_x");
         double polarity_y = pCell->GetCellData()->GetItem("polarity_y");
-        *this->mpOutStream << "polarity\"" << polarity_x << " " << polarity_y << "\" ";
+        *this->mpOutStream << "polarity=\"" << polarity_x << " " << polarity_y << "\" ";
     }
     catch (Exception& e)
     {
@@ -143,17 +143,26 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     try
     {
         double contractility = pCell->GetCellData()->GetItem("contractility");
-        *this->mpOutStream << "contractility\"" << contractility << "\" ";
+        *this->mpOutStream << "contractility=\"" << contractility << "\" ";
     }
     catch (Exception& e)
     {
     }
 
     double pressure = pCell->GetCellData()->GetItem("pressure");
-    *this->mpOutStream << "pressure\"" << pressure << "\" ";
+    *this->mpOutStream << "pressure=\"" << pressure << "\" ";
 
     double target_area = pCell->GetCellData()->GetItem("target area");
-    *this->mpOutStream << "target_area\"" << target_area << "\" ";
+    *this->mpOutStream << "target_area=\"" << target_area << "\" ";
+
+    double parameter_region = pCell->GetCellData()->GetItem("parameter_region");
+    *this->mpOutStream << "parameter_region=\"" << (int) parameter_region << "\" ";
+
+    double tau = pCell->GetCellData()->GetItem("tau");
+    *this->mpOutStream << "tau=\"" << tau << "\" ";
+
+    double eps = pCell->GetCellData()->GetItem("eps");
+    *this->mpOutStream << "eps=\"" << eps << "\" ";
 
     *this->mpOutStream << "/>\n";
 }
