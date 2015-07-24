@@ -22,18 +22,18 @@ DEFAULTS = {'cells_across': 20,
             'growth_scaling_parameter': 0.0003,
             'type1_fraction': 0.5}
 
-def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=False, parallel=False, animate=False, run=True):
+def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=False, optimized=True, animate=False, run=True):
     params = DEFAULTS.copy()
     params.update(single_parameters)
     starting_dir = os.path.abspath('.')
     if build:
         os.chdir('../../..')
         subprocess.call(['scons', 'compile_only=1', 'chaste_libs=1', '-j8'] +
-                        (['build=GccOptNative_8'] if parallel else []) +
+                        (['build=GccOptNative'] if optimized else []) +
                         ['test_suite=projects/{user}/test/{sim}.hpp'.format(user=USER, sim=simulation)])
     os.chdir(starting_dir)
 
-    build_dir = '../build/' + ('optimised_native' if parallel else 'debug')
+    build_dir = '../build/' + ('optimised_native' if optimized else 'debug')
     os.putenv('LD_LIBRARY_PATH', os.path.abspath(build_dir) + ':' + os.path.abspath('../../../linklib'))
 
     sim_ids = []
@@ -75,7 +75,7 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
     for sim_id in sim_ids:
         abs_test_output = os.path.abspath(TESTOUTPUT)
         os.chdir('../../../anim')
-        subprocess.call(['java', 'Visualize2dVertexCellsFixed',
+        subprocess.call(['java', 'Visualize2dVertexCellsNew',
                          '{test_output}/{sim}_{sim_id}/results_from_time_0'.format(test_output=abs_test_output,
                                                                                    sim=simulation,
                                                                                    sim_id=sim_id)])
