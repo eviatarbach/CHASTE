@@ -22,7 +22,7 @@ DEFAULTS = {'cells_across': 20,
             'growth_scaling_parameter': 0.0003,
             'type1_fraction': 0.5}
 
-def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=False, optimized=True, animate=False, run=True):
+def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=False, optimized=True, animate=False, run=True, chart=True, chart_time=None, fixed=False):
     params = DEFAULTS.copy()
     params.update(single_parameters)
     starting_dir = os.path.abspath('.')
@@ -45,6 +45,12 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
     else:
         product = [params]
 
+    if chart:
+        assert len(keys) <= 2
+        import matplotlib.pyplot as plt
+        rows = len(values[0])
+        cols = len(values[1]) if len(keys) > 1 else 1
+
     processes = []
     for param_set in product:
         sweep_params = params.copy()
@@ -62,7 +68,7 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
         if run:
             os.chdir(build_dir)
             print("Running simulation {sim_id} with parameters:".format(sim_id=sim_id))
-            print(sweep_params)
+            print(zip(keys, param_set))
             proc = subprocess.Popen(['./{sim}Runner'.format(sim=simulation), '-sim_id', '{sim_id}'.format(sim_id=sim_id)])
             os.chdir(starting_dir)
             processes.append(proc)
@@ -72,10 +78,10 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
         process.wait()
 
     print(sim_ids)
-    for sim_id in sim_ids:
+    for index, sim_id in enumerate(sim_ids):
         abs_test_output = os.path.abspath(TESTOUTPUT)
         os.chdir('../../../anim')
-        subprocess.call(['java', 'Visualize2dVertexCellsNew',
+        subprocess.call(['java', 'Visualize2dVertexCells{suffix}'.format(suffix='New' if not fixed else 'Fixed'),
                          '{test_output}/{sim}_{sim_id}/results_from_time_0'.format(test_output=abs_test_output,
                                                                                    sim=simulation,
                                                                                    sim_id=sim_id)])
@@ -84,8 +90,16 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
             os.mkdir(str(sim_id))
 
         print(glob.glob('*.png'))
+
         for image in glob.glob('*.png'):
             os.rename(image, '{sim_id}/{image}'.format(sim_id=sim_id, image=image))
+
+        if chart:
+            import Image
+            plt.subplot(rows, cols, index)
+            assert chart_time
+            im = Image.open('{sim_id}/image{image}.png'.format(sim_id=sim_id, image=str(chart_time).zfill(5)))
+            plt.imshow(im)
 
         os.chdir(starting_dir)
 
@@ -95,3 +109,6 @@ def run_simulation(simulation, single_parameters={}, sweep_parameters={}, build=
             os.chdir('../../../anim')
             subprocess.call(['./make_a_movie_new', str(sim_id)])
             os.chdir(starting_dir)
+    if chart:
+        os.chdir('../../../anim')
+        plt.savefig('{simulation}.png'.format(simulation=simulation))

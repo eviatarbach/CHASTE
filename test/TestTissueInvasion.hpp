@@ -64,7 +64,6 @@
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
                 ( std::ostringstream() << std::dec << x ) ).str()
 
-#include "PetscSetupAndFinalize.hpp"
 class TestTissueInvasion : public CellBasedConfigTestSuite
 {
     public:
@@ -124,11 +123,11 @@ class TestTissueInvasion : public CellBasedConfigTestSuite
             OffLatticeSimulation<2> simulator(cell_population);
             if (simulation_id == UNSIGNED_UNSET)
             {
-                simulator.SetOutputDirectory("TissueInvasion");
+                simulator.SetOutputDirectory("TestTissueInvasion");
             }
             else
             {
-                simulator.SetOutputDirectory(SSTR("TissueInvasion_" << simulation_id));
+                simulator.SetOutputDirectory(SSTR("TestTissueInvasion_" << simulation_id));
             }
             simulator.SetEndTime(config["end_time"]);
             simulator.SetDt(config["dt"]);

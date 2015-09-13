@@ -44,7 +44,7 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
         else
         {
             // This is a new cell
-            cell_target_area = pCell->GetCellData()->GetItem("starting area");
+            cell_target_area = pCell->GetCellData()->GetItem("volume");
         }
     }
     catch (Exception& e)
@@ -52,9 +52,6 @@ void ContactInhibitionTargetAreaModifier<DIM>::UpdateTargetAreaOfCell(CellPtr pC
         // This is the beginning of the simulation; the target area should start at the cell's initial area
         double volume = pCell->GetCellData()->GetItem("volume");
         cell_target_area = volume;
-
-        // Record the starting area for setting the target area of daughter cells
-        pCell->GetCellData()->SetItem("starting area", volume);
     }
 
     double perimeter = pCell->GetCellData()->GetItem("boundary");

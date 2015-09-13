@@ -155,15 +155,20 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
     double target_area = pCell->GetCellData()->GetItem("target area");
     *this->mpOutStream << "target_area=\"" << target_area << "\" ";
 
-    double parameter_region = pCell->GetCellData()->GetItem("parameter_region");
-    *this->mpOutStream << "parameter_region=\"" << (int) parameter_region << "\" ";
+    try
+    {
+        double parameter_region = pCell->GetCellData()->GetItem("parameter_region");
+        *this->mpOutStream << "parameter_region=\"" << (int) parameter_region << "\" ";
 
-    double tau = pCell->GetCellData()->GetItem("tau");
-    *this->mpOutStream << "tau=\"" << tau << "\" ";
+        double tau = pCell->GetCellData()->GetItem("tau");
+        *this->mpOutStream << "tau=\"" << tau << "\" ";
 
-    double eps = pCell->GetCellData()->GetItem("eps");
-    *this->mpOutStream << "eps=\"" << eps << "\" ";
-
+        double eps = pCell->GetCellData()->GetItem("eps");
+        *this->mpOutStream << "eps=\"" << eps << "\" ";
+    }
+    catch (Exception& e)
+    {
+    }
     *this->mpOutStream << "/>\n";
 }
 
