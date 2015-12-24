@@ -90,7 +90,7 @@ void XMLCellWriter<ELEMENT_DIM, SPACE_DIM>::VisitCell(CellPtr pCell, AbstractCel
 
     *this->mpOutStream << "contact_perimeter=\"" << boundary - contact_boundary << "\" ";
 
-    *this->mpOutStream << "neighbours=\"";
+    *this->mpOutStream << "neighbors=\"";
 
     std::set<unsigned> neighbours = pCellPopulation->GetNeighbouringLocationIndices(pCell);
 

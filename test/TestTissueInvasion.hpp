@@ -19,6 +19,7 @@
 
 #include "NagaiHondaForce.hpp"
 #include "DiffusionForce.hpp"
+#include "EdgeContractilityForce.hpp"
 
 #include "ContactInhibitionTargetAreaModifier.hpp"
 #include "SimpleTargetAreaModifier.hpp"
@@ -172,6 +173,13 @@ class TestTissueInvasion : public CellBasedConfigTestSuite
             MAKE_PTR(DiffusionForce<2>, p_dforce);
             p_dforce->SetAbsoluteTemperature(config["diffusion_temperature"]);
             simulator.AddForce(p_dforce);
+
+            MAKE_PTR(EdgeContractilityForce<2>, p_contractility_force);
+            p_contractility_force->SetMagnitude(config["contractility_magnitude"]);
+            p_contractility_force->SetDuration((int) config["contractility_duration"]);
+            p_contractility_force->SetProbability(config["contractility_prob"]);
+            p_contractility_force->SetExponent(config["contractility_exp"]);
+            simulator.AddForce(p_contractility_force);
 
             // Has to be added after volume modifier!
             MAKE_PTR(ContactInhibitionTargetAreaModifier<2>, p_growth_modifier);

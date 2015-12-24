@@ -11,7 +11,7 @@ EdgeContractilityForce<DIM>::EdgeContractilityForce()
     mProbability(0.01),
     mDuration(10),
     mMagnitude(50.0),
-    mExponent(1.0)
+    mExponent(10.0)
 {
 }
 
